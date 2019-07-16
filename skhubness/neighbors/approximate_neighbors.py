@@ -3,13 +3,20 @@
 from abc import ABC, abstractmethod
 from multiprocessing import cpu_count
 import warnings
+from sklearn.base import BaseEstimator
+from sklearn.utils import check_array
 
 
-class ApproximateNearestNeighbor(ABC):
+class ApproximateNearestNeighbor(BaseEstimator, ABC):
     """ Abstract base class for approximate nearest neighbor search methods. """
 
-    def __init__(self, n_candidates: int = 5, metric: str = 'sqeuclidean',
-                 n_jobs: int = 1, verbose: int = 0, *args, **kwargs):
+    def __init__(self,
+                 n_candidates: int = 5,
+                 metric: str = 'sqeuclidean',
+                 n_jobs: int = 1,
+                 verbose: int = 0,
+                 *args,
+                 **kwargs):
         self.n_candidates = n_candidates
         self.metric = metric
         if n_jobs is None:
@@ -30,12 +37,21 @@ class ApproximateNearestNeighbor(ABC):
 
 class UnavailableANN(ApproximateNearestNeighbor):
     """ Placeholder for ANN methods that are not available on specific platforms. """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, n_candidates: int = 5,
+                 metric: str = 'sqeuclidean',
+                 n_jobs: int = 1,
+                 verbose: int = 0,
+                 ):
+        super().__init__(n_candidates=n_candidates,
+                         metric=metric,
+                         n_jobs=n_jobs,
+                         verbose=verbose,
+                         )
         warnings.warn(f'The chosen approximate nearest neighbor method is not supported on your platform.')
 
     def fit(self, X, y=None):
-        pass
+        X = check_array(X)
+        return self
 
     def kneighbors(self, X=None, n_candidates=None, return_distance=True):
         pass
